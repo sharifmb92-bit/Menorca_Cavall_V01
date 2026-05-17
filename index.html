@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menorca Cavalls - Mercat Ecuestre</title>
+    <!-- Iconos para la interfaz hípica y redes sociales -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Contenedor adaptado a pantalla completa nativa del móvil */
+        .app-container {
+            width: 100%;
+            max-width: 500px; /* Límite para que no se deforme en pantallas muy grandes */
+            background: #ffffff;
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        /* Cabecera de la App */
+        .app-header {
+            background: #2c4c38; /* Verde hípico */
+            color: #ffffff;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 3px solid #dfa12b; /* Dorado Menorquín */
+        }
+
+        .app-header h1 {
+            margin: 0;
+            font-size: 20px;
+            letter-spacing: 1px;
+        }
+
+        .app-header p {
+            margin: 3px 0 0 0;
+            font-size: 11px;
+            color: #b3cbb9;
+            text-transform: uppercase;
+        }
+
+        /* Contenido con scroll independiente */
+        .app-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            padding-bottom: 85px;
+        }
+
+        /* Selector de pestañas */
+        .view-switcher {
+            display: flex;
+            background: #e5e7eb;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 15px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #4b5563;
+            cursor: pointer;
+            border-radius: 9px;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: #ffffff;
+            color: #2c4c38;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .app-section {
+            display: none;
+        }
+
+        .app-section.active {
+            display: block;
+        }
+
+        /* --- VISTA COMPRAR (MERCADO) --- */
+        .search-bar {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .filter-tags {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+
+        .tag {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            white-space: nowrap;
+            color: #4b5563;
+        }
+
+        .tag.active {
+            background: #2c4c38;
+            color: white;
+        }
+
+        .market-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        .product-img-placeholder {
+            height: 110px;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #9ca3af;
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            background: rgba(44, 76, 56, 0.9);
+            color: white;
+            font-size: 9px;
+            font-weight: bold;
+            padding: 3px 6px;
+            border-radius: 4px;
+        }
+
+        .product-badge.fiestas {
+            background: #dfa12b;
+            color: #1a2e22;
+        }
+
+        .product-info {
+            padding: 10px;
+        }
+
+        .product-title {
+            margin: 0;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-meta {
+            font-size: 11px;
+            color: #6b7280;
+            margin: 4px 0;
+        }
+
+        .product-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .product-price {
+            font-weight: 700;
+            color: #2c4c38;
+            font-size: 15px;
+        }
+
+        /* Zona de botones sociales */
+        .social-share-group {
+            display: flex;
+            gap: 6px;
+        }
+
+        .share-btn {
+            flex: 1;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .share-btn.whatsapp { background: #25d366; }
+        .share-btn.facebook { background: #1877f2; }
+        .share-btn.instagram { background: #e1306c; }
+
+        /* --- VISTA VENDER (FORMULARIO) --- */
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4b5563;
+            margin-bottom: 4px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .radio-tile-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .radio-tile {
+            flex: 1;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .radio-tile i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .radio-tile span {
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .radio-tile.selected {
+            border-color: #2c4c38;
+            background: #f0fdf4;
+            color: #2c4c38;
+        }
+
+        .dynamic-fields {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .dynamic-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #9ca3af;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .checkbox-wrapper input {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Caja de subida de archivos interactiva */
+        .file-upload-box {
+            border: 2px dashed #cbd5e1;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .file-upload-box:hover {
+            background: #f1f5f9;
+        }
+
+        .file-upload-box i {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 6px;
+            color: #2c4c38;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: #2c4c38;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* --- NAVEGACIÓN INFERIOR --- */
+        .nav-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 65px;
+            background: #ffffff;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            background: none;
+            border: none;
+            width: 25%;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: #2c4c38;
+            font-weight: 700;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+
+        <!-- Cabecera fija -->
+        <header class="app-header">
+            <h1>MENORCA CAVALLS</h1>
+            <p>Mercat Ecuestre Local</p>
+        </header>
+
+        <!-- Contenido Interactivo -->
+        <div class="app-content">
+            
+            <!-- Selector de Vista (Pestañas) -->
+            <div class="view-switcher">
+                <button class="tab-btn active" id="tab-buy" onclick="switchView('buy')">
+                    <i class="fas fa-shopping-bag"></i> Comprar
+                </button>
+                <button class="tab-btn" id="tab-sell" onclick="switchView('sell')">
+                    <i class="fas fa-plus-circle"></i> Vender / Subir
+                </button>
+            </div>
+
+            <!-- ================= SECCIÓN COMPRAR (MERCADO) ================= -->
+            <div id="section-buy" class="app-section active">
+                <input type="text" class="search-bar" placeholder="Buscar caballos, sillas, carros...">
+                
+                <div class="filter-tags">
+                    <span class="tag active">Todo</span>
+                    <span class="tag">🐴 PRM</span>
+                    <span class="tag">🛞 Carros</span>
+                    <span class="tag">🥾 Calzado</span>
+                    <span class="tag">🏇 Guarnicionería</span>
+                </div>
+
+                <div class="market-grid">
+                    <!-- Producto 1: Caballo -->
+                    <div class="product-card">
+                        <div class="product-img-placeholder">
+                            <i class="fas fa-horse"></i>
+                            <span class="product-badge">🐴 PRM</span>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">Esclat - Noble y Apto Jaleos</h3>
+                            <div class="product-meta"><i class="fas fa-map-marker-alt"></i> Ciutadella</div>
+                            <div class="product-footer">
+                                <span class="product-price">4.200 €</span>
+                                <div class="social-share-group">
+                                    <a href="https://wa.me/34600000000?text=Hola,%20interesado%20en%20Esclat" target="_blank" class="share-btn whatsapp" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://menorcacavalls.com" target="_blank" class="share-btn facebook" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                                    <a href="https://instagram.com" target="_blank" class="share-btn instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Producto 2: Carro -->
+                    <div class="product-card">
+                        <div class="product-img-placeholder">
+                            <i class="fas fa-truck-pickup"></i>
+                            <span class="product-badge">🛞 Carros</span>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">Carro de paseo menorquín</h3>
+                            <div class="product-meta"><i class="fas fa-map-marker-alt"></i> Alaior</div>
+                            <div class="product-footer">
+                                <span class="product-price">1.500 €</span>
+                                <div class="social-share-group">
+                                    <a href="https://wa.me/34600000000?text=Hola,%20interesado%20en%20el%20carro" target="_blank" class="share-btn whatsapp"><i class="fab fa-whatsapp"></i></a>
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://menorcacavalls.com" target="_blank" class="share-btn facebook"><i class="fab fa-facebook-f"></i></a>
+                                    <a href="https://instagram.com" target="_blank" class="share-btn instagram"><i class="fab fa-instagram"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= SECCIÓN SUBIR / VENDER ================= -->
+            <div id="section-sell" class="app-section">
+                <form id="uploadForm">
+                    
+                    <div class="form-group">
+                        <label>¿Qué tipo de artículo vas a anunciar?</label>
+                        <div class="radio-tile-group">
+                            <div class="radio-tile selected" id="tile-horse" onclick="setCategory('horse')">
+                                <input type="radio" name="main_category" value="caballo" checked style="display:none;">
+                                <i class="fas fa-horse"></i>
+                                <span>Caballo</span>
+                            </div>
+                            <div class="radio-tile" id="tile-gear" onclick="setCategory('gear')">
+                                <input type="radio" name="main_category" value="complemento" style="display:none;">
+                                <i class="fas fa-toolbox"></i>
+                                <span>Complemento</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Título del Anuncio</label>
+                        <input type="text" class="form-control" placeholder="Ej: Silla menorquina tradicional..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Precio (€)</label>
+                        <input type="number" class="form-control" placeholder="Ej: 450" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Municipio de Menorca</label>
+                        <select class="form-control" required>
+                            <option value="">Selecciona municipio...</option>
+                            <option>Alaior</option>
+                            <option>Ciutadella de Menorca</option>
+                            <option>Es Castell</option>
+                            <option>Es Mercadal</option>
+                            <option>Es Migjorn Gran</option>
+                            <option>Ferreries</option>
+                            <option>Maó</option>
+                            <option>Sant Lluís</option>
+                        </select>
+                    </div>
+
+                    <!-- CAMPOS DINÁMICOS -->
+                    <div class="dynamic-fields" id="dynamic-container">
+                        <div class="dynamic-title" id="dynamic-header">Especificaciones de Caballo</div>
+                        
+                        <div id="fields-horse">
+                            <div class="form-group">
+                                <label>Raza</label>
+                                <select class="form-control">
+                                    <option>Pura Raza Menorquina (PRM)</option>
+                                    <option>Cruzado Menorquín</option>
+                                    <option>Otros</option>
+                                </select>
+                            </div>
+                            <div class="form-group checkbox-wrapper">
+                                <input type="checkbox" id="apto-jaleos">
+                                <label for="apto-jaleos">Apto para Fiestas / Jaleos</label>
+                            </div>
+                        </div>
+
+                        <div id="fields-gear" style="display: none;">
+                            <div class="form-group">
+                                <label>Subcategoría</label>
+                                <select class="form-control">
+                                    <option>Carros y Remolques</option>
+                                    <option>Zapatos y Botas</option>
+                                    <option>Sillas y Guarnicionería</option>
+                                    <option>Otros</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Subida multimedia con INPUT REAL oculto -->
+                    <div class="form-group">
+                        <label>Fotos / Vídeos del producto</label>
+                        <input type="file" id="media-input" accept="image/*,video/*" multiple style="display: none;">
+                        <div class="file-upload-box" onclick="triggerMediaSelect()">
+                            <i class="fas fa-camera"></i>
+                            <span id="upload-status-text">Haz clic aquí para usar la cámara o elegir archivos</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tu Teléfono (WhatsApp)</label>
+                        <input type="tel" class="form-control" placeholder="Ej: 600123456" required>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Subir Anuncio</button>
+                </form>
+            </div>
+
+        </div>
+
+        <!-- Navegación fija inferior -->
+        <nav class="nav-bar">
+            <button class="nav-item active" onclick="switchView('buy')">
+                <i class="fas fa-horse-head"></i>
+                <span>Mercado</span>
+            </button>
+            <button class="nav-item" onclick="switchView('sell')">
+                <i class="fas fa-plus-circle"></i>
+                <span>Anunciar</span>
+            </button>
+            <button class="nav-item">
+                <i class="fas fa-heart"></i>
+                <span>Favoritos</span>
+            </button>
+            <button class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>Mi Perfil</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Script de lógica integrada -->
+    <script>
+        function switchView(view) {
+            const tabBuy = document.getElementById('tab-buy');
+            const tabSell = document.getElementById('tab-sell');
+            const sectionBuy = document.getElementById('section-buy');
+            const sectionSell = document.getElementById('section-sell');
+
+            tabBuy.classList.remove('active');
+            tabSell.classList.remove('active');
+            sectionBuy.classList.remove('active');
+            sectionSell.classList.remove('active');
+
+            if (view === 'buy') {
+                tabBuy.classList.add('active');
+                sectionBuy.classList.add('active');
+            } else if (view === 'sell') {
+                tabSell.classList.add('active');
+                sectionSell.classList.add('active');
+            }
+        }
+
+        function setCategory(cat) {
+            const tileHorse = document.getElementById('tile-horse');
+            const tileGear = document.getElementById('tile-gear');
+            const fieldsHorse = document.getElementById('fields-horse');
+            const fieldsGear = document.getElementById('fields-gear');
+            const dynamicHeader = document.getElementById('dynamic-header');
+
+            tileHorse.classList.remove('selected');
+            tileGear.classList.remove('selected');
+
+            if (cat === 'horse') {
+                tileHorse.classList.add('selected');
+                fieldsHorse.style.display = 'block';
+                fieldsGear.style.display = 'none';
+                dynamicHeader.innerText = "Especificaciones de Caballo";
+                document.querySelector('input[value="caballo"]').checked = true;
+            } else {
+                tileGear.classList.add('selected');
+                fieldsHorse.style.display = 'none';
+                fieldsGear.style.display = 'block';
+                dynamicHeader.innerText = "Detalles del Complemento";
+                document.querySelector('input[value="complemento"]').checked = true;
+            }
+        }
+
+        // Simular clic en el input de tipo archivo real al presionar el cuadro visual
+        function triggerMediaSelect() {
+            document.getElementById('media-input').click();
+        }
+
+        // Mostrar feedback cuando seleccionas un archivo con la cámara/galería
+        document.getElementById('media-input').addEventListener('change', function() {
+            const filesCount = this.files.length;
+            const statusText = document.getElementById('upload-status-text');
+            if (filesCount > 0) {
+                statusText.innerText = `✅ ${filesCount} archivo(s) seleccionado(s) correctamente`;
+                statusText.style.color = "#2c4c38";
+                statusText.style.fontWeight = "bold";
+            }
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            alert("¡Anuncio subido con éxito para revisión!");
+            this.reset();
+            document.getElementById('upload-status-text').innerText = "Haz clic aquí para usar la cámara o elegir archivos";
+            document.getElementById('upload-status-text').style.color = "#64748b";
+            setCategory('horse');
+            switchView('buy');
+        });
+    </script>
+</body>
+</html>
